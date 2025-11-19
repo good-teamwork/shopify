@@ -1,0 +1,119 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "name": "t:sections.header.name",
+  "type": "header",
+  "sections": {
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "blocks": {
+        "announcement-bar-0": {
+          "type": "announcement",
+          "settings": {
+            "text": "Welcome to our store",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "announcement-bar-0"
+      ],
+      "settings": {
+        "auto_rotate": false,
+        "change_slides_speed": 5,
+        "color_scheme": "scheme-1",
+        "show_line_separator": true,
+        "show_social": false,
+        "enable_country_selector": false,
+        "enable_language_selector": false
+      }
+    },
+    "header": {
+      "type": "header",
+      "settings": {
+        "logo_position": "middle-left",
+        "mobile_logo_position": "center",
+        "menu": "main-menu",
+        "menu_type_desktop": "dropdown",
+        "sticky_header_type": "on-scroll-up",
+        "show_line_separator": true,
+        "color_scheme": "scheme-1",
+        "menu_color_scheme": "scheme-1",
+        "enable_country_selector": true,
+        "enable_language_selector": true,
+        "enable_customer_avatar": true,
+        "margin_bottom": 0,
+        "padding_top": 20,
+        "padding_bottom": 20
+      }
+    },
+    "custome_hero_jUJeQV": {
+      "type": "custome-hero",
+      "blocks": {
+        "review_LcpRg4": {
+          "type": "review",
+          "settings": {
+            "review_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+            "review_author": "Lorem ipsum",
+            "review_date": "22/09/1996",
+            "review_stars": 5
+          }
+        },
+        "review_fQ6cCG": {
+          "type": "review",
+          "settings": {
+            "review_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+            "review_author": "Lorem ipsum",
+            "review_date": "22/09/1996",
+            "review_stars": 5
+          }
+        },
+        "review_fQ6pm8": {
+          "type": "review",
+          "settings": {
+            "review_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+            "review_author": "Lorem ipsum",
+            "review_date": "22/09/1996",
+            "review_stars": 4
+          }
+        },
+        "review_8xfxHC": {
+          "type": "review",
+          "settings": {
+            "review_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+            "review_author": "Lorem ipsum",
+            "review_date": "22/09/1996",
+            "review_stars": 5
+          }
+        }
+      },
+      "block_order": [
+        "review_LcpRg4",
+        "review_fQ6cCG",
+        "review_fQ6pm8",
+        "review_8xfxHC"
+      ],
+      "name": "Custom Hero Section",
+      "settings": {
+        "heading": "Lorem ipsum dolor sit amet",
+        "subheading": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut.",
+        "hero_image": "shopify://shop_images/image_6_b79a5f76-d320-42de-8c79-c7f3b57ca4ca.png",
+        "button_label": "Shop Now",
+        "button_link": "shopify://collections/all",
+        "customer_text": "Over 100,000+ Happy Customers"
+      }
+    }
+  },
+  "order": [
+    "announcement-bar",
+    "header",
+    "custome_hero_jUJeQV"
+  ]
+}

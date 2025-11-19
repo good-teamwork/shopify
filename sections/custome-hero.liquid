@@ -1,0 +1,678 @@
+{% schema %}
+{
+  "name": "Custom Hero Section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Lorem ipsum dolor sit amet" },
+    { "type": "textarea", "id": "subheading", "label": "Subheading", "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut." },
+    { "type": "image_picker", "id": "hero_image", "label": "Hero Image" },
+    { "type": "text", "id": "button_label", "label": "Button Label", "default": "Shop Now" },
+    { "type": "url", "id": "button_link", "label": "Button Link", "default": "/collections/all" },
+    { "type": "text", "id": "customer_text", "label": "Customer Count Text", "default": "Over 100,000+ Happy Customers" }
+  ],
+  "blocks": [
+    {
+      "type": "thumb_image",
+      "name": "Thumbnail Image",
+      "limit": 10,
+      "settings": [
+        { "type": "image_picker", "id": "thumb_img", "label": "Thumbnail Image" }
+      ]
+    },
+    {
+      "type": "review",
+      "name": "Review Slide",
+      "limit": 10,
+      "settings": [
+        { "type": "textarea", "id": "review_text", "label": "Review Text", "default": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor" },
+        { "type": "text", "id": "review_author", "label": "Author", "default": "Lorem ipsum" },
+        { "type": "text", "id": "review_date", "label": "Date", "default": "22/09/1996" },
+        { "type": "range", "id": "review_stars", "label": "Star Rating", "min": 1, "max": 5, "step": 1, "default": 5 }
+      ]
+    }
+  ],
+  "max_blocks": 10,
+  "presets": [
+    { "name": "Custom Hero Section", "category": "Hero" }
+  ]
+}
+{% endschema %}
+
+<section class="custom-hero" {{ section.shopify_attributes }}>
+  <div class="hero-container">
+    <div class="hero-text">
+      <h1>{{ section.settings.heading }}</h1>
+      <p>{{ section.settings.subheading }}</p>
+      {% assign shop_url = section.settings.button_link %}
+      {% if shop_url == blank %}
+        {% assign shop_url = '/collections/all' %}
+      {% endif %}
+      <a class="hero-button" href="{{ shop_url }}">{{ section.settings.button_label }}</a>
+      <span class="customer-count">{{ section.settings.customer_text }}</span>
+    </div>
+
+    {% if section.settings.hero_image %}
+    <div class="hero-image">
+      <img src="{{ section.settings.hero_image | img_url: '720x' }}" alt="{{ section.settings.heading }}" />
+    </div>
+    {% endif %}
+  </div>
+
+  {% if section.blocks.size > 0 %}
+  <div class="review-section">
+    <div class="review-separator"></div>
+    <div class="review-slider-wrapper">
+      <div class="review-slider">
+        {% if section.blocks.size > 1 %}
+        <button class="nav-btn prev-btn" aria-label="Previous slide" style="display: none;">←</button>
+        {% endif %}
+        <div class="review-track">
+          <div class="review-track-inner">
+          {% for block in section.blocks %}
+          <div class="review-slide review-slide-{{ block.type }}" data-index="{{ forloop.index0 }}" data-type="{{ block.type }}" data-block-id="{{ block.id }}" {{ block.shopify_attributes }}>
+            {% case block.type %}
+              {% when 'review' %}
+                <div class="review-content-wrapper">
+                  <p class="review-text">
+                    {% if block.settings.review_text != blank %}
+                      "{{ block.settings.review_text }}"
+                    {% else %}
+                      "Add your review text here"
+                    {% endif %}
+                  </p>
+                  <div class="review-meta">
+                    {% if block.settings.review_stars and block.settings.review_stars > 0 %}
+                      <span class="stars">{% for i in (1..block.settings.review_stars) %}★{% endfor %}</span>
+                    {% else %}
+                      <span class="stars">★★★★★</span>
+                    {% endif %}
+                    {% if block.settings.review_author != blank %}
+                      <span class="author">{{ block.settings.review_author }}</span>
+                    {% else %}
+                      <span class="author">Author Name</span>
+                    {% endif %}
+                    <span class="separator-dot">•</span>
+                    {% if block.settings.review_date != blank %}
+                      <span class="date">{{ block.settings.review_date }}</span>
+                    {% else %}
+                      <span class="date">Date</span>
+                    {% endif %}
+                  </div>
+                </div>
+              {% when 'thumb_image' %}
+                <div class="thumb-slide-content">
+                  {% if block.settings.thumb_img %}
+                    <img src="{{ block.settings.thumb_img | img_url: '800x' }}" alt="{{ block.settings.thumb_img.alt | default: 'Thumbnail' }}" />
+                  {% else %}
+                    <div class="empty-slide">
+                      <p>No image selected</p>
+                    </div>
+                  {% endif %}
+                </div>
+              {% else %}
+                <div class="block-placeholder">
+                  <p>Block type: {{ block.type }}</p>
+                </div>
+            {% endcase %}
+          </div>
+          {% endfor %}
+          </div>
+        </div>
+        {% if section.blocks.size > 1 %}
+        <button class="nav-btn next-btn" aria-label="Next slide">→</button>
+        {% endif %}
+      </div>
+      {% if section.blocks.size > 1 %}
+      <div class="review-pagination">
+        {% for block in section.blocks %}
+        <span class="pagination-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}"></span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</section>
+
+<style>
+.custom-hero {
+  padding: 60px 20px;
+  background: linear-gradient(90deg, #ffffff, #f3eaff);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  margin-bottom: 60px;
+}
+
+.hero-text {
+  flex: 1;
+}
+
+.hero-text h1 {
+  font-size: 48px;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  background: linear-gradient(135deg, #4a24ea, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.hero-text p {
+  font-size: 16px;
+  color: #4a4a4a;
+  margin: 0 0 30px 0;
+  line-height: 1.6;
+}
+
+.hero-button {
+  display: inline-block;
+  background: linear-gradient(135deg, #4a24ea, #3b82f6);
+  color: #fff;
+  padding: 12px 24px;
+  margin: 20px 0;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.3s ease;
+}
+
+.hero-button:hover {
+  opacity: 0.9;
+}
+
+.customer-count {
+  display: block;
+  margin-top: 15px;
+  font-size: 14px;
+  color: #4a4a4a;
+  text-decoration: underline;
+}
+
+.hero-image {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hero-image img {
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  border-radius: 0 20px 0 0;
+  object-fit: cover;
+}
+
+.review-section {
+  margin-top: 60px;
+}
+
+.review-separator {
+  width: 100%;
+  height: 1px;
+  background: #e0e0e0;
+  margin-bottom: 40px;
+}
+
+.review-slider-wrapper {
+  position: relative;
+}
+
+.review-slider {
+  display: flex;
+  align-items: flex-start;
+  gap: 30px;
+  position: relative;
+  margin-bottom: 20px;
+  justify-content: space-between;
+}
+
+.review-track {
+  overflow: hidden;
+  flex: 1;
+  position: relative;
+  min-width: 0;
+}
+
+.review-track-inner {
+  display: flex;
+  flex-direction: row;
+  transition: transform 0.3s ease;
+  will-change: transform;
+  width: auto;
+  min-width: 100%;
+}
+
+.review-slide {
+  min-width: 0;
+  width: 0;
+  padding: 20px;
+  text-align: center;
+  flex-shrink: 0;
+  flex-grow: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: none;
+  outline: none;
+  background: transparent;
+  position: relative;
+  opacity: 1;
+  visibility: visible;
+}
+
+.review-content-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.block-placeholder {
+  padding: 20px;
+  text-align: center;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* Ensure blocks are visible in theme editor */
+.review-slide[data-block-id] {
+  min-height: 200px;
+}
+
+.thumb-slide-content {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.thumb-slide-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.thumb-slide-content.empty-slide {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+}
+
+.review-text {
+  font-size: 24px;
+  color: #2a2a2a;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+  font-weight: 400;
+  max-width: 800px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  width: 100%;
+  min-height: 1.5em;
+}
+
+.review-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.stars {
+  color: #000;
+  font-size: 18px;
+  letter-spacing: 3px;
+  margin-right: 4px;
+}
+
+.author {
+  color: #a78bfa;
+  font-weight: 400;
+  font-size: 16px;
+}
+
+.separator-dot {
+  color: #a78bfa;
+  font-size: 16px;
+  margin: 0 4px;
+}
+
+.date {
+  color: #9ca3af;
+  font-size: 16px;
+}
+
+.nav-btn {
+  background: transparent;
+  border: 1px solid #9ca3af;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 18px;
+  color: #2a2a2a;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.nav-btn:hover {
+  border-color: #2a2a2a;
+  background: #f9fafb;
+}
+
+.review-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.pagination-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d1d5db;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.pagination-dot.active {
+  background: #000;
+}
+
+@media(max-width: 768px) {
+  .hero-container {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .hero-text h1 {
+    font-size: 36px;
+  }
+  
+  .hero-image {
+    justify-content: center;
+  }
+  
+  .hero-image img {
+    border-radius: 20px;
+  }
+  
+  .review-text {
+    font-size: 20px;
+  }
+  
+  .review-meta {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+</style>
+
+<script>
+(function() {
+  let sliderIndex = 0;
+  let sliderTrack = null;
+  let sliderSlides = null;
+  
+  function initSlider() {
+    const trackContainer = document.querySelector('.review-track');
+    const track = document.querySelector('.review-track-inner');
+    if (!track || !trackContainer) {
+      // Retry after a short delay if track not found
+      setTimeout(initSlider, 100);
+      return;
+    }
+    
+    // Store references
+    sliderTrack = track;
+    const trackContainerRef = trackContainer; // Store for use in functions
+    const next = document.querySelector('.next-btn');
+    const prev = document.querySelector('.prev-btn');
+    const dots = document.querySelectorAll('.pagination-dot');
+    sliderSlides = track.querySelectorAll('.review-slide');
+    
+    if (!sliderSlides || sliderSlides.length === 0) {
+      return;
+    }
+    
+    if (sliderSlides.length === 1) {
+      // Hide navigation if only one slide
+      if (next) next.style.display = 'none';
+      if (prev) prev.style.display = 'none';
+      // Reset transform for single slide
+      track.style.transform = 'translateX(0%)';
+      return;
+    }
+    
+    sliderIndex = 0;
+    
+    // Ensure track has proper width and all slides are visible
+    function setSlideWidths() {
+      // Get the visible width of the track container (the viewport width)
+      let visibleWidth = trackContainerRef.offsetWidth || trackContainerRef.clientWidth;
+      
+      // If width is still 0, try getting from computed style
+      if (visibleWidth <= 0) {
+        const computedStyle = window.getComputedStyle(trackContainerRef);
+        visibleWidth = parseFloat(computedStyle.width) || trackContainerRef.getBoundingClientRect().width;
+      }
+      
+      if (visibleWidth > 0 && sliderSlides && sliderSlides.length > 0) {
+        // Set width for each slide to be exactly the visible width
+        sliderSlides.forEach((slide, index) => {
+          slide.style.minWidth = visibleWidth + 'px';
+          slide.style.width = visibleWidth + 'px';
+          slide.style.maxWidth = visibleWidth + 'px';
+          slide.style.flexShrink = '0';
+          slide.style.flexGrow = '0';
+          slide.style.opacity = '1';
+          slide.style.visibility = 'visible';
+          slide.style.display = 'flex';
+        });
+        
+        // Set inner track width to accommodate all slides
+        track.style.width = (visibleWidth * sliderSlides.length) + 'px';
+        
+        updateSlider();
+      } else {
+        // Retry if width is 0 (layout not ready)
+        setTimeout(setSlideWidths, 150);
+      }
+    }
+    
+    function updateSlider() {
+      if (sliderTrack && sliderSlides && sliderSlides.length > 0) {
+        // Get the visible width - use the first slide's width as reference
+        // since all slides should be the same width
+        let visibleWidth = 0;
+        if (sliderSlides[0]) {
+          visibleWidth = sliderSlides[0].offsetWidth || sliderSlides[0].clientWidth || parseFloat(window.getComputedStyle(sliderSlides[0]).width);
+        }
+        
+        // Fallback to track container width if slide width not available
+        if (visibleWidth <= 0 && trackContainerRef) {
+          visibleWidth = trackContainerRef.offsetWidth || trackContainerRef.clientWidth || trackContainerRef.getBoundingClientRect().width;
+        }
+        
+        // Calculate translate based on slide index
+        const translateX = -(sliderIndex * visibleWidth);
+        sliderTrack.style.transform = `translateX(${translateX}px)`;
+        sliderTrack.style.webkitTransform = `translateX(${translateX}px)`;
+      }
+      
+      // Update pagination dots
+      if (dots && dots.length > 0) {
+        dots.forEach((dot, i) => {
+          if (i === sliderIndex) {
+            dot.classList.add('active');
+          } else {
+            dot.classList.remove('active');
+          }
+        });
+      }
+      
+      // Update button visibility
+      if (prev) {
+        prev.style.display = sliderIndex > 0 ? 'flex' : 'none';
+      }
+      
+      if (next) {
+        next.style.display = sliderIndex < sliderSlides.length - 1 ? 'flex' : 'none';
+      }
+    }
+    
+    function nextSlide(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      if (sliderSlides && sliderSlides.length > 0 && sliderIndex < sliderSlides.length - 1) {
+        sliderIndex = sliderIndex + 1;
+        updateSlider();
+      }
+    }
+    
+    function prevSlide(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      if (sliderSlides && sliderSlides.length > 0 && sliderIndex > 0) {
+        sliderIndex = sliderIndex - 1;
+        updateSlider();
+      }
+    }
+    
+    // Add event listeners
+    if (next) {
+      next.onclick = nextSlide;
+    }
+    
+    if (prev) {
+      prev.onclick = prevSlide;
+    }
+    
+    // Add click handlers to pagination dots
+    if (dots && dots.length > 0) {
+      dots.forEach((dot, i) => {
+        dot.onclick = function(e) {
+          if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+          sliderIndex = i;
+          updateSlider();
+        };
+      });
+    }
+    
+    // Handle window resize
+    let resizeTimeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        setSlideWidths();
+      }, 250);
+    };
+    window.addEventListener('resize', handleResize);
+    
+    // Initialize - set widths and update slider
+    // Call multiple times to handle timing issues in theme editor
+    setSlideWidths();
+    setTimeout(setSlideWidths, 100);
+    setTimeout(setSlideWidths, 300);
+    setTimeout(setSlideWidths, 500);
+  }
+  
+  // Wait for DOM to be ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(initSlider, 100);
+    });
+  } else {
+    setTimeout(initSlider, 100);
+  }
+  
+  // Re-initialize when Shopify theme editor updates
+  if (typeof window.Shopify !== 'undefined' && window.Shopify.designMode) {
+    document.addEventListener('shopify:section:load', () => {
+      sliderIndex = 0;
+      sliderTrack = null;
+      sliderSlides = null;
+      setTimeout(initSlider, 200);
+    });
+    
+    // Listen for block selection to scroll to that block
+    document.addEventListener('shopify:block:select', (event) => {
+      if (event.detail && event.detail.blockId) {
+        const blockElement = document.querySelector(`[data-block-id="${event.detail.blockId}"]`);
+        if (blockElement && sliderTrack && sliderSlides && sliderSlides.length > 0) {
+          const blockIndex = parseInt(blockElement.getAttribute('data-index'), 10);
+          if (!isNaN(blockIndex) && blockIndex < sliderSlides.length) {
+            sliderIndex = blockIndex;
+            
+            // Get visible width from first slide
+            let visibleWidth = 0;
+            if (sliderSlides[0]) {
+              visibleWidth = sliderSlides[0].offsetWidth || sliderSlides[0].clientWidth || parseFloat(window.getComputedStyle(sliderSlides[0]).width);
+            }
+            if (visibleWidth <= 0) {
+              const container = document.querySelector('.review-track');
+              if (container) {
+                visibleWidth = container.offsetWidth || container.clientWidth || container.getBoundingClientRect().width;
+              } else {
+                visibleWidth = sliderTrack.offsetWidth || sliderTrack.clientWidth || sliderTrack.getBoundingClientRect().width;
+              }
+            }
+            
+            const translateX = -(sliderIndex * visibleWidth);
+            sliderTrack.style.transform = `translateX(${translateX}px)`;
+            sliderTrack.style.webkitTransform = `translateX(${translateX}px)`;
+            
+            // Update pagination dots
+            const dots = document.querySelectorAll('.pagination-dot');
+            if (dots && dots.length > 0) {
+              dots.forEach((dot, i) => {
+                if (i === sliderIndex) {
+                  dot.classList.add('active');
+                } else {
+                  dot.classList.remove('active');
+                }
+              });
+            }
+            
+            // Update button visibility
+            const next = document.querySelector('.next-btn');
+            const prev = document.querySelector('.prev-btn');
+            if (prev) {
+              prev.style.display = sliderIndex > 0 ? 'flex' : 'none';
+            }
+            if (next) {
+              next.style.display = sliderIndex < sliderSlides.length - 1 ? 'flex' : 'none';
+            }
+          }
+        }
+      }
+    });
+  }
+})();
+</script>

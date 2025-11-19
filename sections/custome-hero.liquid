@@ -42,10 +42,7 @@
     <div class="hero-text">
       <h1>{{ section.settings.heading }}</h1>
       <p>{{ section.settings.subheading }}</p>
-      {% assign shop_url = section.settings.button_link %}
-      {% if shop_url == blank %}
-        {% assign shop_url = '/collections/all' %}
-      {% endif %}
+      {% assign shop_url = section.settings.button_link | default: '/collections/all' %}
       <a class="hero-button" href="{{ shop_url }}">{{ section.settings.button_label }}</a>
       <span class="customer-count">{{ section.settings.customer_text }}</span>
     </div>
@@ -67,54 +64,46 @@
         {% endif %}
         <div class="review-track">
           <div class="review-track-inner">
-          {% for block in section.blocks %}
-          <div class="review-slide review-slide-{{ block.type }}" data-index="{{ forloop.index0 }}" data-type="{{ block.type }}" data-block-id="{{ block.id }}" {{ block.shopify_attributes }}>
-            {% case block.type %}
-              {% when 'review' %}
-                <div class="review-content-wrapper">
-                  <p class="review-text">
-                    {% if block.settings.review_text != blank %}
-                      "{{ block.settings.review_text }}"
-                    {% else %}
-                      "Add your review text here"
-                    {% endif %}
-                  </p>
-                  <div class="review-meta">
-                    {% if block.settings.review_stars and block.settings.review_stars > 0 %}
+            {% for block in section.blocks %}
+            <div class="review-slide" data-index="{{ forloop.index0 }}" data-type="{{ block.type }}" data-block-id="{{ block.id }}" {{ block.shopify_attributes }}>
+              {% case block.type %}
+                {% when 'review' %}
+                  <div class="review-content-wrapper">
+                    <p class="review-text">
+                      {% if block.settings.review_text != blank %}
+                        "{{ block.settings.review_text }}"
+                      {% else %}
+                        "Add your review text here"
+                      {% endif %}
+                    </p>
+                    <div class="review-meta">
                       <span class="stars">{% for i in (1..block.settings.review_stars) %}★{% endfor %}</span>
+                      {% if block.settings.review_author != blank %}
+                        <span class="author">{{ block.settings.review_author }}</span>
+                      {% else %}
+                        <span class="author">Author Name</span>
+                      {% endif %}
+                      <span class="separator-dot">•</span>
+                      {% if block.settings.review_date != blank %}
+                        <span class="date">{{ block.settings.review_date }}</span>
+                      {% else %}
+                        <span class="date">Date</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% when 'thumb_image' %}
+                  <div class="thumb-slide-content">
+                    {% if block.settings.thumb_img %}
+                      <img src="{{ block.settings.thumb_img | img_url: '800x' }}" alt="{{ block.settings.thumb_img.alt | default: 'Thumbnail' }}" />
                     {% else %}
-                      <span class="stars">★★★★★</span>
-                    {% endif %}
-                    {% if block.settings.review_author != blank %}
-                      <span class="author">{{ block.settings.review_author }}</span>
-                    {% else %}
-                      <span class="author">Author Name</span>
-                    {% endif %}
-                    <span class="separator-dot">•</span>
-                    {% if block.settings.review_date != blank %}
-                      <span class="date">{{ block.settings.review_date }}</span>
-                    {% else %}
-                      <span class="date">Date</span>
+                      <div class="empty-slide">
+                        <p>No image selected</p>
+                      </div>
                     {% endif %}
                   </div>
-                </div>
-              {% when 'thumb_image' %}
-                <div class="thumb-slide-content">
-                  {% if block.settings.thumb_img %}
-                    <img src="{{ block.settings.thumb_img | img_url: '800x' }}" alt="{{ block.settings.thumb_img.alt | default: 'Thumbnail' }}" />
-                  {% else %}
-                    <div class="empty-slide">
-                      <p>No image selected</p>
-                    </div>
-                  {% endif %}
-                </div>
-              {% else %}
-                <div class="block-placeholder">
-                  <p>Block type: {{ block.type }}</p>
-                </div>
-            {% endcase %}
-          </div>
-          {% endfor %}
+              {% endcase %}
+            </div>
+            {% endfor %}
           </div>
         </div>
         {% if section.blocks.size > 1 %}
@@ -154,7 +143,7 @@
 }
 
 .hero-text h1 {
-  font-size: 48px;
+  font-size: 45px;
   font-weight: 700;
   margin: 0 0 20px 0;
   background: linear-gradient(135deg, #4a24ea, #3b82f6);
@@ -162,13 +151,15 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   line-height: 1.2;
+  font-family: serif;
 }
 
 .hero-text p {
-  font-size: 16px;
+  font-size: 18px;
   color: #4a4a4a;
   margin: 0 0 30px 0;
   line-height: 1.6;
+  font-family: serif;
 }
 
 .hero-button {
@@ -190,7 +181,7 @@
 .customer-count {
   display: block;
   margin-top: 15px;
-  font-size: 14px;
+  font-size: 16px;
   color: #4a4a4a;
   text-decoration: underline;
 }
@@ -199,13 +190,16 @@
   flex: 1;
   display: flex;
   justify-content: flex-end;
+  height: 400px;
+  min-height: 300px;
 }
 
 .hero-image img {
   width: 100%;
   max-width: 520px;
-  height: auto;
-  border-radius: 0 20px 0 0;
+  height: 100%;
+  max-height: 400px;
+  border-radius: 0 50px 0 0;
   object-fit: cover;
 }
 
@@ -228,7 +222,6 @@
   display: flex;
   align-items: flex-start;
   gap: 30px;
-  position: relative;
   margin-bottom: 20px;
   justify-content: space-between;
 }
@@ -255,18 +248,12 @@
   padding: 20px;
   text-align: center;
   flex-shrink: 0;
-  flex-grow: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  border: none;
-  outline: none;
-  background: transparent;
-  position: relative;
-  opacity: 1;
-  visibility: visible;
+  min-height: 200px;
 }
 
 .review-content-wrapper {
@@ -275,18 +262,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-
-.block-placeholder {
-  padding: 20px;
-  text-align: center;
-  color: #9ca3af;
-  font-style: italic;
-}
-
-/* Ensure blocks are visible in theme editor */
-.review-slide[data-block-id] {
-  min-height: 200px;
 }
 
 .thumb-slide-content {
@@ -303,7 +278,7 @@
   object-fit: cover;
 }
 
-.thumb-slide-content.empty-slide {
+.thumb-slide-content .empty-slide {
   min-height: 200px;
   display: flex;
   align-items: center;
@@ -321,7 +296,6 @@
   word-wrap: break-word;
   overflow-wrap: break-word;
   width: 100%;
-  min-height: 1.5em;
 }
 
 .review-meta {
@@ -371,6 +345,7 @@
   transition: all 0.3s ease;
   flex-shrink: 0;
   padding: 0;
+  margin-top:80px;
 }
 
 .nav-btn:hover {
@@ -398,31 +373,206 @@
   background: #000;
 }
 
-@media(max-width: 768px) {
+@media(max-width: 1024px) {
+  .custom-hero {
+    padding: 50px 20px;
+  }
+  
   .hero-container {
-    flex-direction: column;
-    text-align: center;
+    gap: 35px;
   }
   
   .hero-text h1 {
-    font-size: 36px;
+    font-size: 40px;
+  }
+  
+  .hero-image {
+    height: auto;
+  }
+  
+  .nav-btn {
+    margin-top: 40px;
+  }
+}
+
+@media(max-width: 768px) {
+  .custom-hero {
+    padding: 40px 15px;
+  }
+  
+  .hero-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 30px;
+    margin-bottom: 40px;
+  }
+  
+  .hero-text {
+    width: 100%;
+  }
+  
+  .hero-text h1 {
+    font-size: 32px;
+    line-height: 1.3;
+    margin-bottom: 15px;
+  }
+  
+  .hero-text p {
+    font-size: 16px;
+    margin-bottom: 25px;
+  }
+  
+  .hero-button {
+    padding: 14px 28px;
+    font-size: 16px;
+    width: 100%;
+    max-width: 280px;
+    margin: 15px auto;
+    display: block;
+  }
+  
+  .customer-count {
+    font-size: 14px;
+    margin-top: 10px;
   }
   
   .hero-image {
     justify-content: center;
+    height: auto;
+    width: 100%;
+    margin-top: 20px;
   }
   
   .hero-image img {
+    width: 100%;
+    max-width: 100%;
     border-radius: 20px;
+    height: auto;
+  }
+  
+  .review-section {
+    margin-top: 40px;
+  }
+  
+  .review-separator {
+    margin-bottom: 30px;
+  }
+  
+  .review-slider {
+    gap: 15px;
+    margin-bottom: 15px;
+    align-items: center;
+  }
+  
+  .review-track {
+    min-width: 0;
+  }
+  
+  .review-slide {
+    padding: 15px 10px;
+    min-height: 180px;
   }
   
   .review-text {
-    font-size: 20px;
+    font-size: 18px;
+    line-height: 1.4;
+    margin-bottom: 15px;
+    padding: 0 10px;
   }
   
   .review-meta {
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
+    align-items: center;
+  }
+  
+  .stars {
+    font-size: 16px;
+    letter-spacing: 2px;
+    margin-right: 0;
+    margin-bottom: 4px;
+  }
+  
+  .author,
+  .date {
+    font-size: 14px;
+  }
+  
+  .separator-dot {
+    display: none;
+  }
+  
+  .nav-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+    margin-top: 0;
+    align-self: center;
+  }
+  
+  .review-pagination {
+    margin-top: 15px;
+    gap: 6px;
+  }
+  
+  .pagination-dot {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .thumb-slide-content img {
+    border-radius: 12px;
+  }
+}
+
+@media(max-width: 480px) {
+  .custom-hero {
+    padding: 30px 12px;
+  }
+  
+  .hero-container {
+    gap: 25px;
+    margin-bottom: 30px;
+  }
+  
+  .hero-text h1 {
+    font-size: 28px;
+    line-height: 1.2;
+  }
+  
+  .hero-text p {
+    font-size: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .hero-button {
+    padding: 12px 24px;
+    font-size: 15px;
+    max-width: 100%;
+  }
+  
+  .review-section {
+    margin-top: 30px;
+  }
+  
+  .review-slider {
+    gap: 10px;
+  }
+  
+  .review-slide {
+    padding: 12px 8px;
+    min-height: 160px;
+  }
+  
+  .review-text {
+    font-size: 16px;
+    padding: 0 5px;
+  }
+  
+  .nav-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
   }
 }
 </style>
@@ -432,247 +582,175 @@
   let sliderIndex = 0;
   let sliderTrack = null;
   let sliderSlides = null;
+  let trackContainer = null;
+  let nextBtn = null;
+  let prevBtn = null;
+  let dots = null;
+  
+  function getVisibleWidth() {
+    if (trackContainer) {
+      return trackContainer.offsetWidth || trackContainer.clientWidth || trackContainer.getBoundingClientRect().width;
+    }
+    return 0;
+  }
+  
+  function setSlideWidths() {
+    const visibleWidth = getVisibleWidth();
+    
+    if (visibleWidth > 0 && sliderSlides && sliderSlides.length > 0) {
+      sliderSlides.forEach(slide => {
+        slide.style.minWidth = visibleWidth + 'px';
+        slide.style.width = visibleWidth + 'px';
+        slide.style.maxWidth = visibleWidth + 'px';
+        slide.style.flexShrink = '0';
+        slide.style.display = 'flex';
+      });
+      
+      if (sliderTrack) {
+        sliderTrack.style.width = (visibleWidth * sliderSlides.length) + 'px';
+      }
+      
+      updateSlider();
+      return true;
+    }
+    return false;
+  }
+  
+  function updateSlider() {
+    if (!sliderTrack || !sliderSlides || sliderSlides.length === 0) return;
+    
+    const visibleWidth = sliderSlides[0]?.offsetWidth || getVisibleWidth();
+    const translateX = -(sliderIndex * visibleWidth);
+    
+    sliderTrack.style.transform = `translateX(${translateX}px)`;
+    sliderTrack.style.webkitTransform = `translateX(${translateX}px)`;
+    
+    if (dots) {
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === sliderIndex);
+      });
+    }
+    
+    if (prevBtn) {
+      prevBtn.style.display = sliderIndex > 0 ? 'flex' : 'none';
+    }
+    
+    if (nextBtn) {
+      nextBtn.style.display = sliderIndex < sliderSlides.length - 1 ? 'flex' : 'none';
+    }
+  }
+  
+  function nextSlide(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (sliderSlides && sliderIndex < sliderSlides.length - 1) {
+      sliderIndex++;
+      updateSlider();
+    }
+  }
+  
+  function prevSlide(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (sliderSlides && sliderIndex > 0) {
+      sliderIndex--;
+      updateSlider();
+    }
+  }
+  
+  function goToSlide(index) {
+    if (sliderSlides && index >= 0 && index < sliderSlides.length) {
+      sliderIndex = index;
+      updateSlider();
+    }
+  }
   
   function initSlider() {
-    const trackContainer = document.querySelector('.review-track');
-    const track = document.querySelector('.review-track-inner');
-    if (!track || !trackContainer) {
-      // Retry after a short delay if track not found
+    trackContainer = document.querySelector('.review-track');
+    sliderTrack = document.querySelector('.review-track-inner');
+    
+    if (!sliderTrack || !trackContainer) {
       setTimeout(initSlider, 100);
       return;
     }
     
-    // Store references
-    sliderTrack = track;
-    const trackContainerRef = trackContainer; // Store for use in functions
-    const next = document.querySelector('.next-btn');
-    const prev = document.querySelector('.prev-btn');
-    const dots = document.querySelectorAll('.pagination-dot');
-    sliderSlides = track.querySelectorAll('.review-slide');
+    nextBtn = document.querySelector('.next-btn');
+    prevBtn = document.querySelector('.prev-btn');
+    dots = document.querySelectorAll('.pagination-dot');
+    sliderSlides = sliderTrack.querySelectorAll('.review-slide');
     
-    if (!sliderSlides || sliderSlides.length === 0) {
-      return;
-    }
+    if (!sliderSlides || sliderSlides.length === 0) return;
     
     if (sliderSlides.length === 1) {
-      // Hide navigation if only one slide
-      if (next) next.style.display = 'none';
-      if (prev) prev.style.display = 'none';
-      // Reset transform for single slide
-      track.style.transform = 'translateX(0%)';
+      if (nextBtn) nextBtn.style.display = 'none';
+      if (prevBtn) prevBtn.style.display = 'none';
+      sliderTrack.style.transform = 'translateX(0)';
       return;
     }
     
     sliderIndex = 0;
     
-    // Ensure track has proper width and all slides are visible
-    function setSlideWidths() {
-      // Get the visible width of the track container (the viewport width)
-      let visibleWidth = trackContainerRef.offsetWidth || trackContainerRef.clientWidth;
-      
-      // If width is still 0, try getting from computed style
-      if (visibleWidth <= 0) {
-        const computedStyle = window.getComputedStyle(trackContainerRef);
-        visibleWidth = parseFloat(computedStyle.width) || trackContainerRef.getBoundingClientRect().width;
-      }
-      
-      if (visibleWidth > 0 && sliderSlides && sliderSlides.length > 0) {
-        // Set width for each slide to be exactly the visible width
-        sliderSlides.forEach((slide, index) => {
-          slide.style.minWidth = visibleWidth + 'px';
-          slide.style.width = visibleWidth + 'px';
-          slide.style.maxWidth = visibleWidth + 'px';
-          slide.style.flexShrink = '0';
-          slide.style.flexGrow = '0';
-          slide.style.opacity = '1';
-          slide.style.visibility = 'visible';
-          slide.style.display = 'flex';
-        });
-        
-        // Set inner track width to accommodate all slides
-        track.style.width = (visibleWidth * sliderSlides.length) + 'px';
-        
-        updateSlider();
-      } else {
-        // Retry if width is 0 (layout not ready)
-        setTimeout(setSlideWidths, 150);
-      }
-    }
+    if (nextBtn) nextBtn.onclick = nextSlide;
+    if (prevBtn) prevBtn.onclick = prevSlide;
     
-    function updateSlider() {
-      if (sliderTrack && sliderSlides && sliderSlides.length > 0) {
-        // Get the visible width - use the first slide's width as reference
-        // since all slides should be the same width
-        let visibleWidth = 0;
-        if (sliderSlides[0]) {
-          visibleWidth = sliderSlides[0].offsetWidth || sliderSlides[0].clientWidth || parseFloat(window.getComputedStyle(sliderSlides[0]).width);
-        }
-        
-        // Fallback to track container width if slide width not available
-        if (visibleWidth <= 0 && trackContainerRef) {
-          visibleWidth = trackContainerRef.offsetWidth || trackContainerRef.clientWidth || trackContainerRef.getBoundingClientRect().width;
-        }
-        
-        // Calculate translate based on slide index
-        const translateX = -(sliderIndex * visibleWidth);
-        sliderTrack.style.transform = `translateX(${translateX}px)`;
-        sliderTrack.style.webkitTransform = `translateX(${translateX}px)`;
-      }
-      
-      // Update pagination dots
-      if (dots && dots.length > 0) {
-        dots.forEach((dot, i) => {
-          if (i === sliderIndex) {
-            dot.classList.add('active');
-          } else {
-            dot.classList.remove('active');
-          }
-        });
-      }
-      
-      // Update button visibility
-      if (prev) {
-        prev.style.display = sliderIndex > 0 ? 'flex' : 'none';
-      }
-      
-      if (next) {
-        next.style.display = sliderIndex < sliderSlides.length - 1 ? 'flex' : 'none';
-      }
-    }
-    
-    function nextSlide(e) {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      if (sliderSlides && sliderSlides.length > 0 && sliderIndex < sliderSlides.length - 1) {
-        sliderIndex = sliderIndex + 1;
-        updateSlider();
-      }
-    }
-    
-    function prevSlide(e) {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      if (sliderSlides && sliderSlides.length > 0 && sliderIndex > 0) {
-        sliderIndex = sliderIndex - 1;
-        updateSlider();
-      }
-    }
-    
-    // Add event listeners
-    if (next) {
-      next.onclick = nextSlide;
-    }
-    
-    if (prev) {
-      prev.onclick = prevSlide;
-    }
-    
-    // Add click handlers to pagination dots
-    if (dots && dots.length > 0) {
+    if (dots) {
       dots.forEach((dot, i) => {
-        dot.onclick = function(e) {
-          if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
-          sliderIndex = i;
-          updateSlider();
+        dot.onclick = (e) => {
+          e?.preventDefault();
+          e?.stopPropagation();
+          goToSlide(i);
         };
       });
     }
     
-    // Handle window resize
     let resizeTimeout;
-    const handleResize = () => {
+    window.addEventListener('resize', () => {
       clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        setSlideWidths();
-      }, 250);
-    };
-    window.addEventListener('resize', handleResize);
+      resizeTimeout = setTimeout(setSlideWidths, 250);
+    });
     
-    // Initialize - set widths and update slider
-    // Call multiple times to handle timing issues in theme editor
-    setSlideWidths();
-    setTimeout(setSlideWidths, 100);
-    setTimeout(setSlideWidths, 300);
-    setTimeout(setSlideWidths, 500);
+    if (!setSlideWidths()) {
+      setTimeout(setSlideWidths, 150);
+    }
   }
   
-  // Wait for DOM to be ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
+  function init() {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => setTimeout(initSlider, 100));
+    } else {
       setTimeout(initSlider, 100);
-    });
-  } else {
-    setTimeout(initSlider, 100);
-  }
-  
-  // Re-initialize when Shopify theme editor updates
-  if (typeof window.Shopify !== 'undefined' && window.Shopify.designMode) {
-    document.addEventListener('shopify:section:load', () => {
-      sliderIndex = 0;
-      sliderTrack = null;
-      sliderSlides = null;
-      setTimeout(initSlider, 200);
-    });
+    }
     
-    // Listen for block selection to scroll to that block
-    document.addEventListener('shopify:block:select', (event) => {
-      if (event.detail && event.detail.blockId) {
-        const blockElement = document.querySelector(`[data-block-id="${event.detail.blockId}"]`);
-        if (blockElement && sliderTrack && sliderSlides && sliderSlides.length > 0) {
-          const blockIndex = parseInt(blockElement.getAttribute('data-index'), 10);
-          if (!isNaN(blockIndex) && blockIndex < sliderSlides.length) {
-            sliderIndex = blockIndex;
-            
-            // Get visible width from first slide
-            let visibleWidth = 0;
-            if (sliderSlides[0]) {
-              visibleWidth = sliderSlides[0].offsetWidth || sliderSlides[0].clientWidth || parseFloat(window.getComputedStyle(sliderSlides[0]).width);
-            }
-            if (visibleWidth <= 0) {
-              const container = document.querySelector('.review-track');
-              if (container) {
-                visibleWidth = container.offsetWidth || container.clientWidth || container.getBoundingClientRect().width;
-              } else {
-                visibleWidth = sliderTrack.offsetWidth || sliderTrack.clientWidth || sliderTrack.getBoundingClientRect().width;
-              }
-            }
-            
-            const translateX = -(sliderIndex * visibleWidth);
-            sliderTrack.style.transform = `translateX(${translateX}px)`;
-            sliderTrack.style.webkitTransform = `translateX(${translateX}px)`;
-            
-            // Update pagination dots
-            const dots = document.querySelectorAll('.pagination-dot');
-            if (dots && dots.length > 0) {
-              dots.forEach((dot, i) => {
-                if (i === sliderIndex) {
-                  dot.classList.add('active');
-                } else {
-                  dot.classList.remove('active');
-                }
-              });
-            }
-            
-            // Update button visibility
-            const next = document.querySelector('.next-btn');
-            const prev = document.querySelector('.prev-btn');
-            if (prev) {
-              prev.style.display = sliderIndex > 0 ? 'flex' : 'none';
-            }
-            if (next) {
-              next.style.display = sliderIndex < sliderSlides.length - 1 ? 'flex' : 'none';
+    if (typeof window.Shopify !== 'undefined' && window.Shopify.designMode) {
+      document.addEventListener('shopify:section:load', () => {
+        sliderIndex = 0;
+        sliderTrack = null;
+        sliderSlides = null;
+        trackContainer = null;
+        nextBtn = null;
+        prevBtn = null;
+        dots = null;
+        setTimeout(initSlider, 200);
+      });
+      
+      document.addEventListener('shopify:block:select', (event) => {
+        if (event.detail?.blockId && sliderTrack && sliderSlides) {
+          const blockElement = document.querySelector(`[data-block-id="${event.detail.blockId}"]`);
+          if (blockElement) {
+            const blockIndex = parseInt(blockElement.getAttribute('data-index'), 10);
+            if (!isNaN(blockIndex) && blockIndex < sliderSlides.length) {
+              goToSlide(blockIndex);
             }
           }
         }
-      }
-    });
+      });
+    }
   }
+  
+  init();
 })();
 </script>
